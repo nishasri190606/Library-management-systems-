@@ -1,0 +1,218 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+class Book
+{
+public:
+    int id;
+    string title;
+    string author;
+    int copies;
+    bool issued;
+
+    void addBook()
+    {
+        cout << "Enter Book ID: ";
+        cin >> id;
+        cin.ignore();
+
+        cout << "Enter Book Title: ";
+        getline(cin, title);
+
+        cout << "Enter Author Name: ";
+        getline(cin, author);
+
+        cout << "Enter Number of Copies: ";
+        cin >> copies;
+
+        issued = false;
+    }
+
+    void displayBook()
+    {
+        cout << "\nBook ID: " << id;
+        cout << "\nTitle: " << title;
+        cout << "\nAuthor: " << author;
+        cout << "\nCopies: " << copies;
+        cout << "\nStatus: ";
+
+        if (issued)
+            cout << "Issued";
+        else
+            cout << "Available";
+
+        cout << endl;
+    }
+};
+
+class Member
+{
+public:
+    int memberId;
+    string name;
+
+    void addMember()
+    {
+        cout << "Enter Member ID: ";
+        cin >> memberId;
+        cin.ignore();
+
+        cout << "Enter Member Name: ";
+        getline(cin, name);
+    }
+};
+
+Book b[50];
+Member m[50];
+
+int bookCount = 0;
+int memberCount = 0;
+
+void saveFile(string text)
+{
+    ofstream file("transactions.txt", ios::app);
+    file << text << endl;
+    file.close();
+}
+
+void addBook()
+{
+    b[bookCount].addBook();
+    bookCount++;
+    saveFile("New Book Added");
+}
+
+void addMember()
+{
+    m[memberCount].addMember();
+    memberCount++;
+    saveFile("New Member Registered");
+}
+
+void issueBook()
+{
+    int id;
+
+    cout << "Enter Book ID to Issue: ";
+    cin >> id;
+
+    for (int i = 0; i < bookCount; i++)
+    {
+        if (b[i].id == id)
+        {
+            if (!b[i].issued && b[i].copies > 0)
+            {
+                b[i].issued = true;
+                b[i].copies--;
+                cout << "Book Issued Successfully\n";
+                saveFile("Book Issued");
+            }
+            else
+            {
+                cout << "Book Not Available\n";
+            }
+            return;
+        }
+    }
+
+    cout << "Book Not Found\n";
+}
+
+void returnBook()
+{
+    int id, lateDays;
+
+    cout << "Enter Book ID to Return: ";
+    cin >> id;
+
+    for (int i = 0; i < bookCount; i++)
+    {
+        if (b[i].id == id)
+        {
+            if (b[i].issued)
+            {
+                b[i].issued = false;
+                b[i].copies++;
+
+                cout << "Enter Late Days: ";
+                cin >> lateDays;
+
+                if (lateDays > 0)
+                    cout << "Fine = Rs." << lateDays * 5 << endl;
+                else
+                    cout << "No Fine\n";
+
+                cout << "Book Returned Successfully\n";
+                saveFile("Book Returned");
+            }
+            else
+            {
+                cout << "Book Already Available\n";
+            }
+            return;
+        }
+    }
+
+    cout << "Book Not Found\n";
+}
+
+void displayBooks()
+{
+    for (int i = 0; i < bookCount; i++)
+    {
+        b[i].displayBook();
+    }
+}
+
+int main()
+{
+    int choice;
+
+    do
+    {
+        cout << "\n===== LIBRARY MANAGEMENT SYSTEM =====\n";
+        cout << "1. Add Book\n";
+        cout << "2. Register Member\n";
+        cout << "3. Issue Book\n";
+        cout << "4. Return Book\n";
+        cout << "5. View Books\n";
+        cout << "6. Exit\n";
+        cout << "Enter Choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            addBook();
+            break;
+
+        case 2:
+            addMember();
+            break;
+
+        case 3:
+            issueBook();
+            break;
+
+        case 4:
+            returnBook();
+            break;
+
+        case 5:
+            displayBooks();
+            break;
+
+        case 6:
+            cout << "Thank You...\n";
+            break;
+
+        default:
+            cout << "Invalid Choice\n";
+        }
+
+    } while (choice != 6);
+
+    return 0;
+}
